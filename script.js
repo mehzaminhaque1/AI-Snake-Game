@@ -27,58 +27,58 @@ async function loadPosenet() {
     return await posenet.load()
 }
 
-function drawSnake() { // Draws snake and food
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clears canvas
+function drawSnake() { 
+    ctx.clearRect(0, 0, canvas.width, canvas.height); 
     ctx.fillStyle = 'lime'; // Snake color
-    snake.forEach(part => ctx.fillRect(part.x, part.y, size, size)); // Draws snake parts
+    snake.forEach(part => ctx.fillRect(part.x, part.y, size, size)); 
     ctx.fillStyle = 'red'; // Food color
-    ctx.fillRect(food.x, food.y, size, size); // Draws food
+    ctx.fillRect(food.x, food.y, size, size); 
 }
 
 function moveSnake() { // Moves the snake
-    let head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y }; // New head position
-    snake.unshift(head); // Add new head
-    if (head.x === food.x && head.y === food.y) { // Check if food eaten
-        food = { x: Math.floor(Math.random() * canvas.width / size) * size, y: Math.floor(Math.random() * canvas.height / size) * size }; // New food
-    } else { snake.pop(); } // Remove last part if no food eaten
+    let head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+    snake.unshift(head); 
+    if (head.x === food.x && head.y === food.y) { 
+        food = { x: Math.floor(Math.random() * canvas.width / size) * size, y: Math.floor(Math.random() * canvas.height / size) * size }; 
+    } else { snake.pop(); } 
 }
 
-function checkCollision() { // Checks for collisions
-    const head = snake[0]; // Snake head
-    if (head.x < 0 || head.y < 0 || head.x >= canvas.width || head.y >= canvas.height) return true; // Wall collision
-    for (let i = 1; i < snake.length; i++) { if (snake[i].x === head.x && snake[i].y === head.y) return true; } // Self collision
-    return false; // No collision
+function checkCollision() { 
+    const head = snake[0];
+    if (head.x < 0 || head.y < 0 || head.x >= canvas.width || head.y >= canvas.height) return true; 
+    for (let i = 1; i < snake.length; i++) { if (snake[i].x === head.x && snake[i].y === head.y) return true; } 
+    return false; 
 }
 
-async function detectPose(net) { // Detects pose
-    const pose = await net.estimateSinglePose(video, { flipHorizontal: true }); // Estimate pose
-    const nose = pose.keypoints.find(p => p.part === 'nose').position; // Get nose position
-    if (nose.y < 200) direction = { x: 0, y: -10 }; // Move up
-    if (nose.y > 300) direction = { x: 0, y: 10 }; // Move down
-    if (nose.x < 200) direction = { x: -10, y: 0 }; // Move left
-    if (nose.x > 400) direction = { x: 10, y: 0 }; // Move right
+async function detectPose(net) { 
+    const pose = await net.estimateSinglePose(video, { flipHorizontal: true }); 
+    const nose = pose.keypoints.find(p => p.part === 'nose').position; 
+    if (nose.y < 200) direction = { x: 0, y: -10 }; 
+    if (nose.y > 300) direction = { x: 0, y: 10 }; 
+    if (nose.x < 200) direction = { x: -10, y: 0 }; 
+    if (nose.x > 400) direction = { x: 10, y: 0 }; 
 }
 
-async function gameLoop(net) { // Main game loop
-    moveSnake(); // Move snake
-    drawSnake(); // Draw snake
-    if (checkCollision()) { // Check collision
-        alert('Game Over!'); // Show game over
-        snake = [{ x: 100, y: 100 }]; // Reset snake
-        direction = { x: 0, y: -10 }; // Reset direction
-        food = { x: 200, y: 200 }; // Reset food
+async function gameLoop(net) { 
+    moveSnake(); 
+    drawSnake(); 
+    if (checkCollision()) { 
+        alert('Game Over!'); 
+        snake = [{ x: 100, y: 100 }]; 
+        direction = { x: 0, y: -10 }; 
+        food = { x: 200, y: 200 }; 
     }
-    await detectPose(net); // Detect pose
-    requestAnimationFrame(() => gameLoop(net)); // Next frame
+    await detectPose(net); 
+    requestAnimationFrame(() => gameLoop(net)); 
 }
 
-async function main() { // Main function
-    await setupCamera(); // Setup camera
-    const net = await loadPoseNet(); // Load PoseNet
+async function main() { 
+    await setupCamera(); 
+    const net = await loadPoseNet(); 
     canvas.width = 640;
     canvas.height = 480;
-    video.play(); // Play video
-    gameLoop(net); // Start game loop
+    video.play(); 
+    gameLoop(net); 
 }
 
-main(); // Call main
+main(); 
